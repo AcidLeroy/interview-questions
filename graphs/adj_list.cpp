@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <list>
+#include <queue>
 
 class Node {
   public: 
@@ -46,6 +47,12 @@ class Graph {
       return visited_list; 
     }
 
+    std::vector<Node> BFS(Node *const root) {
+      std::vector<Node> visited_list; 
+      BFSImpl(root, &visited_list); 
+      return visited_list; 
+    }
+
   private: 
     void DFSImpl(Node * const root, std::vector<Node> * const visited_list) {
       visited_list->push_back(*root); 
@@ -56,6 +63,26 @@ class Graph {
       for (auto &i: connected_nodes)  {
         if (!i->visited()) {
           DFSImpl(i, visited_list); 
+        }
+      }
+    }
+
+    void BFSImpl(Node * const root, std::vector<Node> * const visited_list) {
+      std::queue<Node*> q; 
+      q.push(root); 
+
+      while (!q.empty()) {
+        auto current = q.front(); 
+        q.pop();
+        std::cout << "Current node " << current->name() << std::endl;
+        current->visited(true); 
+        // Add for testing
+        visited_list->push_back(*current); 
+        auto connected_nodes = current->GetEdges(); 
+        for (auto &i: connected_nodes) {
+          if (!i->visited()) {
+            q.push(i); 
+          }
         }
       }
     }
@@ -138,7 +165,7 @@ TEST(AdjList, FourNodesBFS) {
   std::cout << "The result is: " << i.name() << std::endl;
  }
 
- std::vector<std::string> expected{"2", "0", "1", "3"}; 
+ std::vector<std::string> expected{"2", "0", "3", "1"}; 
  ASSERT_EQ(4, node_list.size()); 
  ASSERT_EQ(expected[0], node_list[0].name()); 
  ASSERT_EQ(expected[1], node_list[1].name()); 
